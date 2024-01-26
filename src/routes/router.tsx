@@ -1,4 +1,5 @@
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import ProtectedRoute from "@/components/layout/ProtectedRoute";
 import RootLayout from "@/components/layout/RootLayout";
 import DashboardPage from "@/pages/Dashboard/Dashboard";
 import HomePage from "@/pages/Home/Home";
@@ -20,8 +21,11 @@ const router = createBrowserRouter([
       },
       {
         path: "dashboard",
-
-        element: <DashboardLayout />,
+        element: (
+          <ProtectedRoute>
+            <DashboardLayout />
+          </ProtectedRoute>
+        ),
         children: [
           {
             path: "",

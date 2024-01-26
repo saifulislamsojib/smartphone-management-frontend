@@ -1,13 +1,33 @@
-import { Outlet, ScrollRestoration, useNavigation } from "react-router-dom";
-import Loading from "../ui/loading";
+import { useCurrentUserQuery } from "@/redux/features/auth/authApi";
+import { initialLoading, login } from "@/redux/features/auth/authSlice";
+import { useAppDispatch } from "@/redux/hooks";
+import { useEffect } from "react";
+import { Outlet, ScrollRestoration } from "react-router-dom";
+
+const skip = !localStorage.getItem("jwt-token");
 
 const RootLayout = () => {
-  const { state } = useNavigation();
+  const dispatch = useAppDispatch();
+  const { data } = useCurrentUserQuery(undefined, { skip });
+
+  useEffect(() => {
+    if (data?.data) {
+      dispatch(
+        login({ token: localStorage.getItem("jwt-token")!, user: data?.data })
+      );
+    }
+  }, [data, dispatch]);
+
+  useEffect(() => {
+    if (skip) {
+      dispatch(initialLoading());
+    }
+  }, [dispatch]);
 
   return (
     <main>
       <ScrollRestoration getKey={({ pathname }) => pathname} />
-      {state === "loading" ? <Loading /> : <Outlet />}
+      <Outlet />
     </main>
   );
 };
