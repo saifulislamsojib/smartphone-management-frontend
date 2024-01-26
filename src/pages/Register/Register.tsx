@@ -13,7 +13,7 @@ const RegisterPage = () => {
 
   return (
     <div className="flex items-center min-h-screen">
-      <Card className="max-w-[350px] mx-auto">
+      <Card className="max-w-[400px] mx-auto">
         <CardHeader>
           <CardTitle>Register A New Account</CardTitle>
           <CardDescription>
