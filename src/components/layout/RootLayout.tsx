@@ -1,3 +1,4 @@
+import { Toaster } from "@/components/ui/sonner";
 import { useCurrentUserQuery } from "@/redux/features/auth/authApi";
 import { initialLoading, login } from "@/redux/features/auth/authSlice";
 import { useAppDispatch } from "@/redux/hooks";
@@ -8,15 +9,18 @@ const skip = !localStorage.getItem("jwt-token");
 
 const RootLayout = () => {
   const dispatch = useAppDispatch();
-  const { data } = useCurrentUserQuery(undefined, { skip });
+  const { data, error } = useCurrentUserQuery(undefined, { skip });
 
   useEffect(() => {
     if (data?.data) {
       dispatch(
         login({ token: localStorage.getItem("jwt-token")!, user: data?.data })
       );
+    } else if (error) {
+      dispatch(initialLoading());
+      console.log(error);
     }
-  }, [data, dispatch]);
+  }, [data, dispatch, error]);
 
   useEffect(() => {
     if (skip) {
@@ -25,10 +29,13 @@ const RootLayout = () => {
   }, [dispatch]);
 
   return (
-    <main>
+    <>
+      <main>
+        <Outlet />
+        <Toaster duration={2000} position="top-center" />
+      </main>
       <ScrollRestoration getKey={({ pathname }) => pathname} />
-      <Outlet />
-    </main>
+    </>
   );
 };
 

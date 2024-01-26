@@ -1,8 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useLoginMutation } from "@/redux/features/auth/authApi";
+import { login } from "@/redux/features/auth/authSlice";
+import { useAppDispatch } from "@/redux/hooks";
+import { ErrorResponse } from "@/types/common.type";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 type Inputs = {
   email: string;
@@ -16,8 +21,24 @@ const LoginForm = () => {
     formState: { errors },
   } = useForm<Inputs>();
 
-  const onSubmit: SubmitHandler<Inputs> = (data) => {
-    console.log(data);
+  const dispatch = useAppDispatch();
+  const [authLogin] = useLoginMutation();
+  const navigate = useNavigate();
+
+  const onSubmit: SubmitHandler<Inputs> = async (data) => {
+    const toastId = toast("loading...");
+    const res = await authLogin(data);
+    if ("data" in res) {
+      const { data } = res.data || {};
+      localStorage.setItem("jwt-token", data.token);
+      toast("Login successfully!", { id: toastId });
+      dispatch(login(data));
+      navigate("/dashboard", { replace: true });
+    } else {
+      const err = (res.error as ErrorResponse)?.data?.errorMessage;
+      toast(err || "Login failed!", { id: toastId });
+      console.log(res.error);
+    }
   };
 
   return (

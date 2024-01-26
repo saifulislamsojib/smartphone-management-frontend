@@ -1,8 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useRegisterMutation } from "@/redux/features/auth/authApi";
+import { login } from "@/redux/features/auth/authSlice";
+import { useAppDispatch } from "@/redux/hooks";
+import { ErrorResponse } from "@/types/common.type";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 type Inputs = {
   name: string;
@@ -17,8 +22,24 @@ const RegisterForm = () => {
     formState: { errors },
   } = useForm<Inputs>();
 
-  const onSubmit: SubmitHandler<Inputs> = (data) => {
-    console.log(data);
+  const dispatch = useAppDispatch();
+  const [authRegister] = useRegisterMutation();
+  const navigate = useNavigate();
+
+  const onSubmit: SubmitHandler<Inputs> = async (data) => {
+    const toastId = toast("loading...");
+    const res = await authRegister(data);
+    if ("data" in res) {
+      toast("Account register successfully!", { id: toastId });
+      const { data } = res.data || {};
+      localStorage.setItem("jwt-token", data.token);
+      dispatch(login(data));
+      navigate("/dashboard", { replace: true });
+    } else {
+      const err = (res.error as ErrorResponse)?.data?.errorMessage;
+      toast(err || "Account register failed!", { id: toastId });
+      console.log(res.error);
+    }
   };
 
   return (
