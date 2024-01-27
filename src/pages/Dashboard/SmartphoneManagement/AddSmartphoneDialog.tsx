@@ -12,9 +12,15 @@ type Props = {
   modalOpen: boolean;
   onOpenChange: (value: boolean) => void;
   editInfo?: SmartPhone | null;
+  isCreateVariant?: boolean;
 };
 
-const AddSmartphoneDialog = ({ modalOpen, onOpenChange, editInfo }: Props) => {
+const AddSmartphoneDialog = ({
+  modalOpen,
+  onOpenChange,
+  editInfo,
+  isCreateVariant,
+}: Props) => {
   return (
     <Dialog open={modalOpen} onOpenChange={onOpenChange}>
       <DialogContent
@@ -24,12 +30,19 @@ const AddSmartphoneDialog = ({ modalOpen, onOpenChange, editInfo }: Props) => {
         }}
       >
         <DialogHeader>
-          <DialogTitle>{editInfo ? "Edit" : "Add a"} Smartphone</DialogTitle>
+          <DialogTitle>
+            {isCreateVariant ? "Edit & Add a" : editInfo ? "Edit" : "Add a"}{" "}
+            Smartphone
+          </DialogTitle>
         </DialogHeader>
         <DialogDescription className="text-center">
           All field&apos;s are required.
         </DialogDescription>
-        <AddSmartphoneForm onOpenChange={onOpenChange} editInfo={editInfo} />
+        <AddSmartphoneForm
+          onOpenChange={onOpenChange}
+          editInfo={editInfo}
+          isCreateVariant={isCreateVariant}
+        />
       </DialogContent>
     </Dialog>
   );

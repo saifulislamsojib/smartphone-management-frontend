@@ -18,13 +18,24 @@ import { toast } from "sonner";
 type Props = {
   onOpenChange: (value: boolean) => void;
   editInfo?: SmartPhone | null;
+  isCreateVariant?: boolean;
 };
 
-const AddSmartphoneForm = ({ onOpenChange, editInfo }: Props) => {
+const AddSmartphoneForm = ({
+  onOpenChange,
+  editInfo,
+  isCreateVariant,
+}: Props) => {
   const formPayload = {} as { defaultValues?: SmartPhonePayload };
   if (editInfo) {
+    const copyOfEditInfo = { ...editInfo } as Partial<SmartPhone>;
+    delete copyOfEditInfo._id;
+    delete copyOfEditInfo.createdBy;
+    delete copyOfEditInfo.createdAt;
+    delete copyOfEditInfo.updatedAt;
+
     formPayload.defaultValues = {
-      ...editInfo,
+      ...(copyOfEditInfo as SmartPhonePayload),
       releaseDate: new Date(editInfo.releaseDate).toISOString().split("T")[0],
     };
   }
@@ -52,7 +63,8 @@ const AddSmartphoneForm = ({ onOpenChange, editInfo }: Props) => {
           error: FetchBaseQueryError | SerializedError;
         }
       | undefined;
-    if (editInfo) {
+
+    if (editInfo && !isCreateVariant) {
       res = await editSmartphone({ id: editInfo._id, ...data });
     } else {
       res = await addSmartphone(data);
@@ -241,7 +253,7 @@ const AddSmartphoneForm = ({ onOpenChange, editInfo }: Props) => {
         </div>
       </div>
       <Button type="submit" className="block ml-auto" disabled={fetching}>
-        {editInfo ? "Edit" : "Add"} Smartphone
+        {isCreateVariant ? "Edit & Add" : editInfo ? "Edit" : "Add"} Smartphone
       </Button>
     </form>
   );

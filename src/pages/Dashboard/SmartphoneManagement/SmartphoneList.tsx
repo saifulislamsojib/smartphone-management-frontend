@@ -1,4 +1,7 @@
-import { useGetSmartphonesQuery } from "@/redux/features/smartphone/smartphoneApi";
+import {
+  useDeleteSelectedSmartphonesMutation,
+  useGetSmartphonesQuery,
+} from "@/redux/features/smartphone/smartphoneApi";
 import {
   ColumnDef,
   flexRender,
@@ -30,13 +33,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { ErrorResponse } from "@/types/common.type";
 import { SmartPhone } from "@/types/smartphone.type";
+import { toast } from "sonner";
 
 type Props = {
   handleEditModal: (editInfo: SmartPhone) => void;
+  handleCreateVariant: (editInfo: SmartPhone) => void;
 };
 
-const SmartphoneList = ({ handleEditModal }: Props) => {
+const SmartphoneList = ({ handleEditModal, handleCreateVariant }: Props) => {
   const columns: ColumnDef<SmartPhone>[] = [
     {
       id: "select",
@@ -134,8 +140,11 @@ const SmartphoneList = ({ handleEditModal }: Props) => {
       header: () => <div className="text-right">Action</div>,
       cell: ({ row }) => {
         return (
-          <div className="text-right font-medium">
+          <div className="text-right font-medium flex gap-2 justify-end">
             <Button onClick={() => handleEditModal(row.original)}>Edit</Button>
+            <Button onClick={() => handleCreateVariant(row.original)}>
+              Create Variant
+            </Button>
           </div>
         );
       },
@@ -150,6 +159,8 @@ const SmartphoneList = ({ handleEditModal }: Props) => {
 
   const [rowSelection, setRowSelection] = useState({});
   const [alertOpen, setAlertOpen] = useState(false);
+  const [deleteSelectedSmartphones, { status }] =
+    useDeleteSelectedSmartphonesMutation();
 
   const ids = Object.keys(rowSelection);
 
@@ -164,13 +175,22 @@ const SmartphoneList = ({ handleEditModal }: Props) => {
   });
 
   const handleDeleteAlert = () => {
-    if (ids.length === 0) return;
+    if (ids.length === 0 || status === "pending") return;
     setAlertOpen(true);
   };
 
-  const handleDelete = () => {
-    if (ids.length === 0) return;
-    console.log(ids);
+  const handleDelete = async () => {
+    if (ids.length === 0 || status === "pending") return;
+    const toastId = toast.loading("loading...");
+    const res = await deleteSelectedSmartphones({ ids });
+    if ("data" in res) {
+      toast.success(res.data.message, { id: toastId });
+      setRowSelection({});
+    } else {
+      const err = (res.error as ErrorResponse)?.data?.errorMessage;
+      toast.error(err || "Something went wrong!", { id: toastId });
+      console.log(res.error);
+    }
   };
 
   return (
@@ -185,7 +205,7 @@ const SmartphoneList = ({ handleEditModal }: Props) => {
           <div className="mb-5">
             <Button
               variant="destructive"
-              disabled={ids.length === 0}
+              disabled={ids.length === 0 || status === "pending"}
               onClick={handleDeleteAlert}
             >
               Delete Selected

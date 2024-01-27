@@ -9,6 +9,7 @@ const SmartphoneManagement = () => {
   useTitle("Smartphone Management");
   const [modalOpen, setModalOpen] = useState(false);
   const [editInfo, setEditInfo] = useState<SmartPhone | null>(null);
+  const [isCreateVariant, setIsCreateVariant] = useState(false);
 
   const openModal = () => setModalOpen(true);
 
@@ -17,10 +18,16 @@ const SmartphoneManagement = () => {
     setModalOpen(true);
   };
 
+  const handleCreateVariant = (editInfo: SmartPhone) => {
+    handleEditModal(editInfo);
+    setIsCreateVariant(true);
+  };
+
   const handleOpenChange = (value: boolean) => {
     setModalOpen(value);
     if (!value) {
       setEditInfo(null);
+      setIsCreateVariant(false);
     }
   };
 
@@ -28,15 +35,21 @@ const SmartphoneManagement = () => {
     <>
       <div>
         <div className="flex items-center justify-between gap-2">
-          <h2 className="font-semibold text-2xl">Smartphone Management</h2>
+          <h2 className="font-semibold text-xl md:text-2xl">
+            Smartphone Management
+          </h2>
           <Button onClick={openModal}>Add A Smartphone</Button>
         </div>
-        <SmartphoneList handleEditModal={handleEditModal} />
+        <SmartphoneList
+          handleEditModal={handleEditModal}
+          handleCreateVariant={handleCreateVariant}
+        />
       </div>
       <AddSmartphoneDialog
         modalOpen={modalOpen}
         onOpenChange={handleOpenChange}
         editInfo={editInfo}
+        isCreateVariant={isCreateVariant}
       />
     </>
   );

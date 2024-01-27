@@ -1,6 +1,10 @@
 import { baseApi } from "@/redux/api/baseApi";
 import { Response } from "@/types/common.type";
-import { SmartPhone, SmartPhonePayload } from "@/types/smartphone.type";
+import {
+  DeleteData,
+  SmartPhone,
+  SmartPhonePayload,
+} from "@/types/smartphone.type";
 
 const smartphoneApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -31,6 +35,17 @@ const smartphoneApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["smartphone-list"],
     }),
+    deleteSelectedSmartphones: builder.mutation<
+      Response<DeleteData>,
+      { ids: string[] }
+    >({
+      query: (payload) => ({
+        url: "smartphone",
+        method: "DELETE",
+        body: payload,
+      }),
+      invalidatesTags: ["smartphone-list"],
+    }),
   }),
 });
 
@@ -38,4 +53,5 @@ export const {
   useGetSmartphonesQuery,
   useAddSmartphoneMutation,
   useEditSmartphoneMutation,
+  useDeleteSelectedSmartphonesMutation,
 } = smartphoneApi;

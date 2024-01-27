@@ -22,3 +22,5 @@ export type SmartPhonePayload = Omit<
   SmartPhone,
   "_id" | "createdAt" | "updatedAt" | "createdBy"
 > & { id?: string };
+
+export type DeleteData = { deletedCount: number; acknowledged: boolean };
