@@ -21,4 +21,4 @@ export type SmartPhone = {
 export type SmartPhonePayload = Omit<
   SmartPhone,
   "_id" | "createdAt" | "updatedAt" | "createdBy"
->;
+> & { id?: string };

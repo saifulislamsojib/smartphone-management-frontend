@@ -8,6 +8,16 @@ import {
 } from "@tanstack/react-table";
 import { useState } from "react";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -22,101 +32,116 @@ import {
 } from "@/components/ui/table";
 import { SmartPhone } from "@/types/smartphone.type";
 
-const columns: ColumnDef<SmartPhone>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
-    accessorKey: "name",
-    header: "Name",
-    cell: ({ row }) => <div className="capitalize">{row.getValue("name")}</div>,
-  },
-  {
-    accessorKey: "quantity",
-    header: "Quantity",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("quantity")}</div>
-    ),
-  },
-  {
-    accessorKey: "brand",
-    header: "Brand",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("brand")}</div>
-    ),
-  },
-  {
-    accessorKey: "model",
-    header: "Model",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("model")}</div>
-    ),
-  },
-  {
-    accessorKey: "operatingSystem",
-    header: "Operating System",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("operatingSystem")}</div>
-    ),
-  },
-  {
-    accessorKey: "storageCapacity",
-    header: "Storage",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("storageCapacity")} GB</div>
-    ),
-  },
-  {
-    accessorKey: "screenSize",
-    header: "Screen Size",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("screenSize")} Inch</div>
-    ),
-  },
-  {
-    accessorKey: "cameraQuality",
-    header: "Camera",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("cameraQuality")}</div>
-    ),
-  },
-  {
-    accessorKey: "price",
-    header: () => <div className="text-right">Price</div>,
-    cell: ({ row }) => {
-      const price = parseFloat(row.getValue("price"));
+type Props = {
+  handleEditModal: (editInfo: SmartPhone) => void;
+};
 
-      // Format the amount as a dollar amount
-      const formatted = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-      }).format(price);
-
-      return <div className="text-right font-medium">{formatted}</div>;
+const SmartphoneList = ({ handleEditModal }: Props) => {
+  const columns: ColumnDef<SmartPhone>[] = [
+    {
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
     },
-  },
-];
+    {
+      accessorKey: "name",
+      header: "Name",
+      cell: ({ row }) => (
+        <div className="capitalize">{row.getValue("name")}</div>
+      ),
+    },
+    {
+      accessorKey: "price",
+      header: "Price",
+      cell: ({ row }) => {
+        const price = parseFloat(row.getValue("price"));
 
-const SmartphoneList = () => {
+        // Format the amount as a dollar amount
+        const formatted = new Intl.NumberFormat("en-US", {
+          style: "currency",
+          currency: "USD",
+        }).format(price);
+
+        return <div className="font-medium">{formatted}</div>;
+      },
+    },
+    {
+      accessorKey: "quantity",
+      header: "Quantity",
+      cell: ({ row }) => <div>{row.getValue("quantity")}</div>,
+    },
+    {
+      accessorKey: "brand",
+      header: "Brand",
+      cell: ({ row }) => (
+        <div className="capitalize">{row.getValue("brand")}</div>
+      ),
+    },
+    {
+      accessorKey: "model",
+      header: "Model",
+      cell: ({ row }) => (
+        <div className="capitalize">{row.getValue("model")}</div>
+      ),
+    },
+    {
+      accessorKey: "operatingSystem",
+      header: "Operating System",
+      cell: ({ row }) => (
+        <div className="capitalize">{row.getValue("operatingSystem")}</div>
+      ),
+    },
+    {
+      accessorKey: "storageCapacity",
+      header: "Storage",
+      cell: ({ row }) => (
+        <div className="capitalize">{row.getValue("storageCapacity")} GB</div>
+      ),
+    },
+    {
+      accessorKey: "screenSize",
+      header: "Screen Size",
+      cell: ({ row }) => (
+        <div className="capitalize">{row.getValue("screenSize")} Inch</div>
+      ),
+    },
+    {
+      accessorKey: "cameraQuality",
+      header: "Camera",
+      cell: ({ row }) => (
+        <div className="capitalize">{row.getValue("cameraQuality")}</div>
+      ),
+    },
+    {
+      accessorKey: "action",
+      header: () => <div className="text-right">Action</div>,
+      cell: ({ row }) => {
+        return (
+          <div className="text-right font-medium">
+            <Button onClick={() => handleEditModal(row.original)}>Edit</Button>
+          </div>
+        );
+      },
+    },
+  ];
+
   const {
     isLoading,
     data: { data = [] } = {},
@@ -124,6 +149,9 @@ const SmartphoneList = () => {
   } = useGetSmartphonesQuery({});
 
   const [rowSelection, setRowSelection] = useState({});
+  const [alertOpen, setAlertOpen] = useState(false);
+
+  const ids = Object.keys(rowSelection);
 
   const table = useReactTable({
     data,
@@ -132,7 +160,18 @@ const SmartphoneList = () => {
     getPaginationRowModel: getPaginationRowModel(),
     onRowSelectionChange: setRowSelection,
     state: { rowSelection },
+    getRowId: (originalRow) => originalRow._id,
   });
+
+  const handleDeleteAlert = () => {
+    if (ids.length === 0) return;
+    setAlertOpen(true);
+  };
+
+  const handleDelete = () => {
+    if (ids.length === 0) return;
+    console.log(ids);
+  };
 
   return (
     <>
@@ -142,6 +181,15 @@ const SmartphoneList = () => {
         <div className="w-full">
           <div className="flex items-center py-4">
             <Input placeholder="Search" className="max-w-96" />
+          </div>
+          <div className="mb-5">
+            <Button
+              variant="destructive"
+              disabled={ids.length === 0}
+              onClick={handleDeleteAlert}
+            >
+              Delete Selected
+            </Button>
           </div>
           <div
             className={`rounded-md border${isFetching ? " opacity-70" : ""}`}
@@ -221,6 +269,24 @@ const SmartphoneList = () => {
           </div>
         </div>
       )}
+      <AlertDialog open={alertOpen} onOpenChange={setAlertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-center">
+              Are you sure?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-center">
+              After delete it can&apos;t be undo
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete}>
+              Confirm
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };

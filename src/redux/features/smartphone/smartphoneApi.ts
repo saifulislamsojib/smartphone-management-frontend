@@ -23,8 +23,19 @@ const smartphoneApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["smartphone-list"],
     }),
+    editSmartphone: builder.mutation<Response<SmartPhone>, SmartPhonePayload>({
+      query: ({ id, ...payload }) => ({
+        url: `smartphone/${id}`,
+        method: "PATCH",
+        body: payload,
+      }),
+      invalidatesTags: ["smartphone-list"],
+    }),
   }),
 });
 
-export const { useGetSmartphonesQuery, useAddSmartphoneMutation } =
-  smartphoneApi;
+export const {
+  useGetSmartphonesQuery,
+  useAddSmartphoneMutation,
+  useEditSmartphoneMutation,
+} = smartphoneApi;
