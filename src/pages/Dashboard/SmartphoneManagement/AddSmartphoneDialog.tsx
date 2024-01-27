@@ -81,6 +81,7 @@ const AddSmartphoneDialog = ({ modalOpen, setModalOpen }: Props) => {
               <Input
                 id="price"
                 type="number"
+                step={0.01}
                 className={`col-span-3${
                   errors.price
                     ? " focus-visible:ring-red-500 border-red-500"
@@ -183,6 +184,7 @@ const AddSmartphoneDialog = ({ modalOpen, setModalOpen }: Props) => {
               <Input
                 id="screenSize"
                 type="number"
+                step={0.01}
                 className={`col-span-3${
                   errors.screenSize
                     ? " focus-visible:ring-red-500 border-red-500"
