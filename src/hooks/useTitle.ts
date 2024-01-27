@@ -3,7 +3,7 @@ import { useLayoutEffect } from "react";
 const useTitle = (title: string) => {
   useLayoutEffect(() => {
     if (title) {
-      document.title = `${title} - Smartphone Management`;
+      document.title = title;
 
       return () => {
         document.title = "Smartphone Management";

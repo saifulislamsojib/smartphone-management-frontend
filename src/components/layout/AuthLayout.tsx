@@ -24,7 +24,7 @@ const AuthLayout = ({ children, title, description }: Props) => {
       {loading ? (
         <Loading />
       ) : token ? (
-        <Navigate to="/dashboard" replace />
+        <Navigate to="/dashboard/smartphone-management" replace />
       ) : (
         <div className="flex items-center justify-center min-h-screen">
           <Card className="max-w-[400px] mx-auto">

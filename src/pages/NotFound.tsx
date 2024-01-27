@@ -4,9 +4,9 @@ const NotFoundPage = () => {
   useTitle("Not Found");
 
   return (
-    <div>
-      <h2>Ops!</h2>
-      <h4>Requested page not found</h4>
+    <div className="text-center">
+      <h2 className="font-bold text-2xl">Ops!</h2>
+      <h4 className="font-medium text-lg mt-2">Requested page not found</h4>
     </div>
   );
 };
