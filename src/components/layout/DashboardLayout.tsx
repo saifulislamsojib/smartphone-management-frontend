@@ -18,7 +18,7 @@ const DashboardLayout = () => {
           sidebarToggler={sidebarToggler}
           toggleSidebar={toggleSidebar}
         />
-        <div className={`ml-5 mt-5${sidebarToggler ? "" : " lg:ml-10"}`}>
+        <div className={`mx-5 mt-5${sidebarToggler ? "" : " lg:mx-10"}`}>
           <Outlet />
         </div>
       </div>

@@ -1,4 +1,4 @@
-export type Response<T extends Record<string, unknown>> = {
+export type Response<T extends object> = {
   success: boolean;
   message: string;
   data: T;
