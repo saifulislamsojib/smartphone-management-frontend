@@ -9,7 +9,7 @@ import {
   getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import {
   AlertDialog,
@@ -24,7 +24,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import Loading from "@/components/ui/loading";
+import { Slider } from "@/components/ui/slider";
 import {
   Table,
   TableBody,
@@ -35,6 +37,7 @@ import {
 } from "@/components/ui/table";
 import { ErrorResponse } from "@/types/common.type";
 import { SmartPhone } from "@/types/smartphone.type";
+import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 
 type Props = {
@@ -151,18 +154,50 @@ const SmartphoneList = ({ handleEditModal, handleCreateVariant }: Props) => {
     },
   ];
 
+  const [searchParams, setSearchParams] = useSearchParams();
+  const page = Number(searchParams.get("page")) || 1;
+  const minPrice = Number(searchParams.get("minPrice")) || 0;
+  const maxPrice = Number(searchParams.get("maxPrice")) || 500000;
+  let releaseDate: string | undefined = searchParams.get("releaseDate")!;
+  releaseDate = releaseDate
+    ? new Date(releaseDate).toISOString().split("T")[0]
+    : undefined;
+  const brand = searchParams.get("brand");
+  const model = searchParams.get("model");
+  const operatingSystem = searchParams.get("operatingSystem");
+  const storageCapacity = searchParams.get("storageCapacity");
+  const screenSize = searchParams.get("screenSize");
+  const cameraQuality = searchParams.get("cameraQuality");
+  const batteryLife = searchParams.get("batteryLife");
+
   const {
     isLoading,
     data: { data = [] } = {},
     isFetching,
-  } = useGetSmartphonesQuery({});
+  } = useGetSmartphonesQuery({
+    minPrice,
+    maxPrice,
+    page,
+    releaseDate,
+    brand,
+    model,
+    operatingSystem,
+    storageCapacity,
+    screenSize,
+    batteryLife,
+    cameraQuality,
+  });
 
   const [rowSelection, setRowSelection] = useState({});
   const [alertOpen, setAlertOpen] = useState(false);
   const [deleteSelectedSmartphones, { status }] =
     useDeleteSelectedSmartphonesMutation();
 
+  const [priceRange, setPriceRange] = useState([minPrice, maxPrice]);
+
   const ids = Object.keys(rowSelection);
+
+  const formRef = useRef<HTMLFormElement>(null);
 
   const table = useReactTable({
     data,
@@ -194,24 +229,167 @@ const SmartphoneList = ({ handleEditModal, handleCreateVariant }: Props) => {
     }
   };
 
+  const handleFilter = () => {
+    const getValue = (name: string) => formRef.current?.[name]?.value;
+    setSearchParams((pre) => {
+      const filter = new URLSearchParams(pre);
+      if (priceRange[0] || priceRange[0] === 0) {
+        filter.set("minPrice", priceRange[0].toString());
+      } else {
+        filter.delete("minPrice");
+      }
+      if (priceRange[1]) {
+        filter.set("maxPrice", priceRange[1].toString());
+      } else {
+        filter.delete("maxPrice");
+      }
+      const releaseDate = getValue("releaseDate");
+      if (releaseDate) {
+        filter.set("releaseDate", releaseDate);
+      } else {
+        filter.delete("releaseDate");
+      }
+      const brand = getValue("brand");
+      if (brand) {
+        filter.set("brand", brand);
+      } else {
+        filter.delete("brand");
+      }
+      const model = getValue("model");
+      if (model) {
+        filter.set("model", model);
+      } else {
+        filter.delete("model");
+      }
+      const operatingSystem = getValue("operatingSystem");
+      if (operatingSystem) {
+        filter.set("operatingSystem", operatingSystem);
+      } else {
+        filter.delete("operatingSystem");
+      }
+      const storageCapacity = getValue("storageCapacity");
+      if (storageCapacity) {
+        filter.set("storageCapacity", storageCapacity);
+      } else {
+        filter.delete("storageCapacity");
+      }
+      const screenSize = getValue("screenSize");
+      if (screenSize) {
+        filter.set("screenSize", screenSize);
+      } else {
+        filter.delete("screenSize");
+      }
+      const cameraQuality = getValue("cameraQuality");
+      if (cameraQuality) {
+        filter.set("cameraQuality", cameraQuality);
+      } else {
+        filter.delete("cameraQuality");
+      }
+      const batteryLife = getValue("batteryLife");
+      if (batteryLife) {
+        filter.set("batteryLife", batteryLife);
+      } else {
+        filter.delete("batteryLife");
+      }
+
+      return filter;
+    });
+  };
+
   return (
     <>
       {isLoading ? (
         <Loading className="min-h-[calc(100vh-200px)]" />
       ) : (
         <div className="w-full">
-          <div className="flex items-center py-4">
-            <Input placeholder="Search" className="max-w-96" />
-          </div>
-          <div className="mb-5">
+          <form ref={formRef}>
+            {/* <div className="flex items-center py-4">
+              <Input placeholder="Search" className="max-w-96" />
+            </div> */}
+            <div className="mb-5 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 items-center">
+              <div className="pr-5">
+                <Label htmlFor="price" className="mb-2 inline-block">
+                  Price Range
+                </Label>
+                <Slider
+                  value={priceRange}
+                  min={0}
+                  max={500000}
+                  step={500}
+                  className="max-w-[400px]"
+                  showThumbValue
+                  minStepsBetweenThumbs={1}
+                  onValueChange={setPriceRange}
+                />
+              </div>
+              <div>
+                <Label htmlFor="releaseDate" className="mb-2 inline-block">
+                  Release Date
+                </Label>
+                <Input type="date" name="releaseDate" id="releaseDate" />
+              </div>
+              <div>
+                <Label htmlFor="brand" className="mb-2 inline-block">
+                  Brand
+                </Label>
+                <Input name="brand" id="brand" />
+              </div>
+              <div>
+                <Label htmlFor="model" className="mb-2 inline-block">
+                  Model
+                </Label>
+                <Input name="model" id="model" />
+              </div>
+              <div>
+                <Label htmlFor="operatingSystem" className="mb-2 inline-block">
+                  Operating System
+                </Label>
+                <Input name="operatingSystem" id="operatingSystem" />
+              </div>
+              <div>
+                <Label htmlFor="storageCapacity" className="mb-2 inline-block">
+                  Storage Capacity
+                </Label>
+                <Input
+                  type="number"
+                  name="storageCapacity"
+                  id="storageCapacity"
+                />
+              </div>
+              <div>
+                <Label htmlFor="screenSize" className="mb-2 inline-block">
+                  Screen Size
+                </Label>
+                <Input name="screenSize" id="screenSize" type="number" />
+              </div>
+              <div>
+                <Label htmlFor="cameraQuality" className="mb-2 inline-block">
+                  Camera Quality
+                </Label>
+                <Input name="cameraQuality" id="cameraQuality" />
+              </div>
+              <div>
+                <Label htmlFor="batteryLife" className="mb-2 inline-block">
+                  Battery Life
+                </Label>
+                <Input name="batteryLife" id="batteryLife" />
+              </div>
+              <div>
+                <Button onClick={handleFilter} type="button" className="mt-6">
+                  Filter
+                </Button>
+              </div>
+            </div>
             <Button
               variant="destructive"
               disabled={ids.length === 0 || status === "pending"}
               onClick={handleDeleteAlert}
+              className="w-min mb-5"
+              type="button"
             >
               Delete Selected
             </Button>
-          </div>
+          </form>
           <div
             className={`rounded-md border${isFetching ? " opacity-70" : ""}`}
           >

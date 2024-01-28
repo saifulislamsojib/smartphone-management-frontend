@@ -5,17 +5,14 @@ import {
   SmartPhone,
   SmartPhonePayload,
 } from "@/types/smartphone.type";
+import objectToParams, { ObjectToParamsProp } from "@/utils/objectToParams";
 
 const smartphoneApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getSmartphones: builder.query<
-      Response<SmartPhone[]>,
-      Record<string, unknown>
-    >({
+    getSmartphones: builder.query<Response<SmartPhone[]>, ObjectToParamsProp>({
       query: (payload) => ({
-        url: "smartphone",
+        url: `smartphone${objectToParams(payload)}`,
         method: "GET",
-        params: payload,
       }),
       providesTags: ["smartphone-list"],
     }),
