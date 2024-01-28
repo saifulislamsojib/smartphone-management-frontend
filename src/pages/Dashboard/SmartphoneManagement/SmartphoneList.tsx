@@ -391,7 +391,7 @@ const SmartphoneList = ({ handleEditModal, handleCreateVariant }: Props) => {
             </Button>
           </form>
           <div
-            className={`rounded-md border${isFetching ? " opacity-70" : ""}`}
+            className={`rounded-md border${isFetching ? " opacity-60" : ""}`}
           >
             <Table>
               <TableHeader>

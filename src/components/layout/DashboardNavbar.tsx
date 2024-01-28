@@ -15,7 +15,7 @@ const DashboardNavbar = ({ toggleSidebar, sidebarToggler }: Props) => {
   const handleLogout = () => {
     localStorage.removeItem("jwt-token");
     dispatch(logout());
-    toast.success("Logout successfully!", { duration: 500000 });
+    toast.success("Logout successfully!");
   };
 
   return (

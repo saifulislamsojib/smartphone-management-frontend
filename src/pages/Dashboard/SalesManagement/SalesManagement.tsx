@@ -1,9 +1,104 @@
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import Loading from "@/components/ui/loading";
 import useTitle from "@/hooks/useTitle";
+import { useGetSmartphonesQuery } from "@/redux/features/smartphone/smartphoneApi";
+import { FormEvent, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import SellDialog from "./SellDialog";
+import SmartphoneList from "./SmartphoneList";
 
 const SalesManagement = () => {
   useTitle("Sales Management");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [modalOpen, setModalOpen] = useState(false);
+  const [sellProductId, setSellProductId] = useState<string | null>(null);
+  const page = Number(searchParams.get("page"));
+  const search = searchParams.get("search") || "";
 
-  return <div>SalesManagement</div>;
+  const openModal = (id: string) => {
+    setModalOpen(true);
+    setSellProductId(id);
+  };
+
+  const handleSubmit = (e: FormEvent) => {
+    const search = (e.target as HTMLFormElement)?.search?.value;
+    e.preventDefault();
+    setSearchParams((pre) => {
+      const searchParams = new URLSearchParams(pre);
+      if (search) {
+        searchParams.set("search", search);
+      } else {
+        searchParams.delete("search");
+      }
+
+      return searchParams;
+    });
+  };
+
+  const handleOpenChange = (value: boolean) => {
+    setModalOpen(value);
+    if (!value) {
+      setSellProductId(null);
+    }
+  };
+
+  const {
+    isLoading,
+    data: { data = [] } = {},
+    isFetching,
+  } = useGetSmartphonesQuery({ search, page, onStock: true });
+
+  return (
+    <>
+      <div>
+        <div className="flex items-center justify-between gap-2">
+          <h2 className="font-semibold text-xl md:text-2xl">
+            Seals Management
+          </h2>
+        </div>
+        {isLoading ? (
+          <Loading />
+        ) : (
+          <>
+            <form
+              onSubmit={handleSubmit}
+              className="flex items-center justify-center my-5"
+            >
+              <Input
+                type="search"
+                className="max-w-[400px] mr-2"
+                placeholder="Search by name or brand or model.."
+                name="search"
+                defaultValue={search}
+              />
+              <Button>Search</Button>
+            </form>
+            {data.length > 0 ? (
+              <SmartphoneList
+                data={data}
+                isFetching={isFetching}
+                openModal={openModal}
+              />
+            ) : (
+              <p
+                className={`text-center pt-5 font-semibold text-lg text-red-500${
+                  isFetching ? " opacity-60" : ""
+                }`}
+              >
+                No smartphone found
+              </p>
+            )}
+          </>
+        )}
+      </div>
+      <SellDialog
+        modalOpen={modalOpen}
+        onOpenChange={handleOpenChange}
+        sellProductId={sellProductId}
+      />
+    </>
+  );
 };
 
 export default SalesManagement;
