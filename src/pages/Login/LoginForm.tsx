@@ -26,17 +26,18 @@ const LoginForm = () => {
   const navigate = useNavigate();
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
-    const toastId = toast.loading("loading...");
+    const toastId = toast.loading("loading...", { duration: 500000 });
     const res = await authLogin(data);
+    toast.dismiss(toastId);
     if ("data" in res) {
       const { data } = res.data || {};
       localStorage.setItem("jwt-token", data.token);
       toast.success("Login successfully!", { id: toastId });
       dispatch(login(data));
-      navigate("/dashboard/smartphone-management", { replace: true });
+      navigate("/dashboard/smartphone-management");
     } else {
       const err = (res.error as ErrorResponse)?.data?.errorMessage;
-      toast.error(err || "Login failed!", { id: toastId });
+      toast.error(err || "Login failed!");
       console.log(res.error);
     }
   };

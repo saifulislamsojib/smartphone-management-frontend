@@ -181,14 +181,15 @@ const SmartphoneList = ({ handleEditModal, handleCreateVariant }: Props) => {
 
   const handleDelete = async () => {
     if (ids.length === 0 || status === "pending") return;
-    const toastId = toast.loading("loading...");
+    const toastId = toast.loading("loading...", { duration: 500000 });
     const res = await deleteSelectedSmartphones({ ids });
+    toast.dismiss(toastId);
     if ("data" in res) {
-      toast.success(res.data.message, { id: toastId });
+      toast.success(res.data.message);
       setRowSelection({});
     } else {
       const err = (res.error as ErrorResponse)?.data?.errorMessage;
-      toast.error(err || "Something went wrong!", { id: toastId });
+      toast.error(err || "Something went wrong!");
       console.log(res.error);
     }
   };

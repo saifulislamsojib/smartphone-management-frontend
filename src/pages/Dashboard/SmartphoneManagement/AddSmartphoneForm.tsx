@@ -54,7 +54,7 @@ const AddSmartphoneForm = ({
 
   const onSubmit: SubmitHandler<SmartPhonePayload> = async (data) => {
     if (fetching) return;
-    const toastId = toast.loading("loading...");
+    const toastId = toast.loading("loading...", { duration: 500000 });
     let res:
       | {
           data: Response<SmartPhone>;
@@ -69,13 +69,14 @@ const AddSmartphoneForm = ({
     } else {
       res = await addSmartphone(data);
     }
+    toast.dismiss(toastId);
     if ("data" in res) {
-      toast.success(res.data.message, { id: toastId });
+      toast.success(res.data.message);
       reset();
       onOpenChange(false);
     } else {
       const err = (res.error as ErrorResponse)?.data?.errorMessage;
-      toast.error(err || "Something went wrong!", { id: toastId });
+      toast.error(err || "Something went wrong!");
       console.log(res.error);
     }
   };

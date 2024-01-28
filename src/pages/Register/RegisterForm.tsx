@@ -27,17 +27,18 @@ const RegisterForm = () => {
   const navigate = useNavigate();
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
-    const toastId = toast.loading("loading...");
+    const toastId = toast.loading("loading...", { duration: 500000 });
     const res = await authRegister(data);
+    toast.dismiss(toastId);
     if ("data" in res) {
-      toast.success("Account register successfully!", { id: toastId });
+      toast.success("Account register successfully!");
       const { data } = res.data || {};
       localStorage.setItem("jwt-token", data.token);
       dispatch(login(data));
-      navigate("/dashboard/smartphone-management", { replace: true });
+      navigate("/dashboard/smartphone-management");
     } else {
       const err = (res.error as ErrorResponse)?.data?.errorMessage;
-      toast.error(err || "Account register failed!", { id: toastId });
+      toast.error(err || "Account register failed!");
       console.log(res.error);
     }
   };
