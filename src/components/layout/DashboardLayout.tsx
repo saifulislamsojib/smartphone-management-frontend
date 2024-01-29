@@ -4,8 +4,17 @@ import DashboardNavbar from "./DashboardNavbar";
 import DashboardSidebar from "./DashboardSidebar";
 
 const DashboardLayout = () => {
-  const [sidebarToggler, setSidebarToggler] = useState(true);
-  const toggleSidebar = () => setSidebarToggler((pre) => !pre);
+  const [sidebarToggler, setSidebarToggler] = useState(() => {
+    const toggle = localStorage.getItem("sidebarToggler");
+    return toggle ? JSON.parse(toggle) === true : true;
+  });
+  const toggleSidebar = () => {
+    setSidebarToggler((pre) => {
+      const toggle = !pre;
+      localStorage.setItem("sidebarToggler", JSON.stringify(toggle));
+      return !pre;
+    });
+  };
 
   return (
     <div className="flex">

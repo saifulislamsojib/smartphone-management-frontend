@@ -9,7 +9,7 @@ import {
   getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { FormEvent, useRef, useState } from "react";
 
 import {
   AlertDialog,
@@ -36,6 +36,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import useRefetchToast from "@/hooks/useRefetchToast";
 import { ErrorResponse } from "@/types/common.type";
 import { SmartPhone } from "@/types/smartphone.type";
 import { useSearchParams } from "react-router-dom";
@@ -186,6 +187,7 @@ const SmartphoneList = ({ handleEditModal, handleCreateVariant }: Props) => {
     useDeleteSelectedSmartphonesMutation();
 
   const [priceRange, setPriceRange] = useState([minPrice, maxPrice]);
+  const fromRef = useRef<HTMLFormElement>(null);
 
   const ids = Object.keys(rowSelection);
 
@@ -221,6 +223,8 @@ const SmartphoneList = ({ handleEditModal, handleCreateVariant }: Props) => {
 
   const handleClear = () => {
     setSearchParams({});
+    setPriceRange([0, 50000]);
+    fromRef.current?.reset?.();
   };
 
   const handleFilter = (event: FormEvent<HTMLFormElement>) => {
@@ -292,15 +296,7 @@ const SmartphoneList = ({ handleEditModal, handleCreateVariant }: Props) => {
     });
   };
 
-  const toastIdRef = useRef<string | number | null>(null);
-
-  useEffect(() => {
-    if (isFetching && !isLoading) {
-      toastIdRef.current = toast.loading("Loading...", { duration: 500000 });
-    } else if (toastIdRef.current && !isFetching) {
-      toast.dismiss(toastIdRef.current);
-    }
-  }, [isFetching, isLoading]);
+  useRefetchToast(isFetching, isLoading);
 
   const handlePageChange = (page: number) => {
     setSearchParams((pre) => {
@@ -322,6 +318,7 @@ const SmartphoneList = ({ handleEditModal, handleCreateVariant }: Props) => {
             </div> */}
             <form
               onSubmit={handleFilter}
+              ref={fromRef}
               className="mb-5 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 items-center"
             >
               <div className="pr-5 ps-2">

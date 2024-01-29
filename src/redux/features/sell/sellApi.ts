@@ -1,11 +1,11 @@
 import { baseApi } from "@/redux/api/baseApi";
 import { Response } from "@/types/common.type";
-import { Sell, SellPayload } from "@/types/sell.type";
+import { Sell, SellPayload, SellView } from "@/types/sell.type";
 import objectToParams, { ObjectToParamsProp } from "@/utils/objectToParams";
 
 const smartphoneApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getSellList: builder.query<Response<Sell[]>, ObjectToParamsProp>({
+    getSellList: builder.query<Response<SellView[]>, ObjectToParamsProp>({
       query: (payload = {}) => ({
         url: `sell${objectToParams(payload)}`,
         method: "GET",

@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Loading from "@/components/ui/loading";
 import { Pagination } from "@/components/ui/pagination";
+import useRefetchToast from "@/hooks/useRefetchToast";
 import useTitle from "@/hooks/useTitle";
 import { useGetSmartphonesQuery } from "@/redux/features/smartphone/smartphoneApi";
 import { FormEvent, useState } from "react";
@@ -57,6 +58,8 @@ const SalesManagement = () => {
     data: { data = [], meta: { total = 0 } = {} } = {},
     isFetching,
   } = useGetSmartphonesQuery({ search, page, onStock: true });
+
+  useRefetchToast(isFetching, isLoading);
 
   return (
     <>
