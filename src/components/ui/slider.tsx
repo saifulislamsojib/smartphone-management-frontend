@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 const Slider = forwardRef<
   ElementRef<typeof SliderPrimitive.Root>,
   ComponentPropsWithoutRef<typeof SliderPrimitive.Root> & {
-    showThumbValue?: boolean;
+    showThumbValue?: boolean | ((value: string) => string | number);
   }
 >(({ className, showThumbValue, ...props }, ref) => (
   <SliderPrimitive.Root
@@ -34,7 +34,9 @@ const Slider = forwardRef<
       >
         {showThumbValue && (
           <span className="absolute -top-[33px] right-[50%] min-w-[32px] h-[32px] text-center translate-x-1/2 text-sm bg-[#212121] text-white px-2 py-1 pt-[0.4rem] rounded-full after:absolute after:w-0 after:h-0 after:right-[50%] after:translate-x-1/2 after:z-[-1000] range-slider-arrow">
-            {number?.toLocaleString() || "?"}
+            {(typeof showThumbValue === "function"
+              ? showThumbValue(number?.toLocaleString())
+              : number?.toLocaleString()) || "?"}
           </span>
         )}
       </SliderPrimitive.Thumb>

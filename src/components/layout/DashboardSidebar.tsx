@@ -26,9 +26,7 @@ type Props = {
 
 const DashboardSidebar = ({ sidebarToggler, toggleOpen }: Props) => {
   return (
-    <div
-      className={sidebarToggler ? "lg:w-full lg:max-w-[300px]" : "w-[unset]"}
-    >
+    <div className={sidebarToggler ? "lg:w-[300px]" : "w-[unset]"}>
       <Sidebar
         items={sidebarItems}
         title="Smartphone Management"

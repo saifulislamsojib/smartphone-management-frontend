@@ -33,7 +33,7 @@ const Sidebar = ({
 }: SidebarNavProps) => {
   return (
     <div
-      className={`w-full max-w-[300px] bg-slate-200 min-h-screen p-2 top-0 absolute transition-left z-10 duration-300 ${
+      className={`w-full max-w-[300px] bg-slate-200 min-h-screen p-2 top-0 fixed transition-left z-10 duration-300 ${
         isOpen ? "left-0" : "-left-full"
       }`}
     >

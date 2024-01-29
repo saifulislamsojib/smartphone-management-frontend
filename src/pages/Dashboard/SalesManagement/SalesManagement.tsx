@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Loading from "@/components/ui/loading";
+import { Pagination } from "@/components/ui/pagination";
 import useTitle from "@/hooks/useTitle";
 import { useGetSmartphonesQuery } from "@/redux/features/smartphone/smartphoneApi";
 import { FormEvent, useState } from "react";
@@ -13,7 +14,7 @@ const SalesManagement = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [modalOpen, setModalOpen] = useState(false);
   const [sellProductId, setSellProductId] = useState<string | null>(null);
-  const page = Number(searchParams.get("page"));
+  const page = Number(searchParams.get("page")) || 1;
   const search = searchParams.get("search") || "";
 
   const openModal = (id: string) => {
@@ -36,6 +37,14 @@ const SalesManagement = () => {
     });
   };
 
+  const handlePageChange = (page: number) => {
+    setSearchParams((pre) => {
+      const search = new URLSearchParams(pre);
+      search.set("page", page.toString());
+      return search;
+    });
+  };
+
   const handleOpenChange = (value: boolean) => {
     setModalOpen(value);
     if (!value) {
@@ -45,7 +54,7 @@ const SalesManagement = () => {
 
   const {
     isLoading,
-    data: { data = [] } = {},
+    data: { data = [], meta: { total = 0 } = {} } = {},
     isFetching,
   } = useGetSmartphonesQuery({ search, page, onStock: true });
 
@@ -53,12 +62,12 @@ const SalesManagement = () => {
     <>
       <div>
         <div className="flex items-center justify-between gap-2">
-          <h2 className="font-semibold text-xl md:text-2xl">
+          <h2 className="font-bold text-lg sm:text-xl md:text-2xl text-indigo-500">
             Seals Management
           </h2>
         </div>
         {isLoading ? (
-          <Loading />
+          <Loading className="min-h-[calc(100vh-180px)]" />
         ) : (
           <>
             <form
@@ -75,11 +84,18 @@ const SalesManagement = () => {
               <Button>Search</Button>
             </form>
             {data.length > 0 ? (
-              <SmartphoneList
-                data={data}
-                isFetching={isFetching}
-                openModal={openModal}
-              />
+              <div className="mb-3">
+                <SmartphoneList
+                  data={data}
+                  isFetching={isFetching}
+                  openModal={openModal}
+                />
+                <Pagination
+                  page={page}
+                  onPageChange={handlePageChange}
+                  total={total}
+                />
+              </div>
             ) : (
               <p
                 className={`text-center pt-5 font-semibold text-lg text-red-500${

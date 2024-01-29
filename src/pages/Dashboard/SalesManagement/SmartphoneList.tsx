@@ -10,7 +10,7 @@ type Props = {
 const SmartphoneList = ({ data, isFetching, openModal }: Props) => {
   return (
     <div
-      className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 pt-5 gap-4${
+      className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 pt-5 mb-4 gap-4${
         isFetching ? " opacity-60" : ""
       }`}
     >

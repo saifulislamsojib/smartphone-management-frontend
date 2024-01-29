@@ -20,7 +20,7 @@ const DashboardNavbar = ({ toggleSidebar, sidebarToggler }: Props) => {
 
   return (
     <div
-      className={`h-14 flex justify-between items-center mr-5 lg:mr-10 px-5 bg-slate-100${
+      className={`h-14 flex justify-between items-center mr-5 lg:mr-10 px-5 sticky top-0 z-[5] bg-slate-100${
         sidebarToggler ? "" : " ml-5 lg:ml-10"
       }`}
     >

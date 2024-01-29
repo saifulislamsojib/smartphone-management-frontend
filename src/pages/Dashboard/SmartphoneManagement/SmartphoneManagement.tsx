@@ -34,8 +34,8 @@ const SmartphoneManagement = () => {
   return (
     <>
       <div>
-        <div className="flex items-center justify-between gap-2">
-          <h2 className="font-semibold text-xl md:text-2xl">
+        <div className="flex items-center justify-between gap-2 mb-4">
+          <h2 className="font-bold text-lg sm:text-xl md:text-2xl text-indigo-500">
             Smartphone Management
           </h2>
           <Button onClick={openModal}>Add A Smartphone</Button>

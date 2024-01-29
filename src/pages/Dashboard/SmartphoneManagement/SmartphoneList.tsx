@@ -9,7 +9,7 @@ import {
   getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { useRef, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 
 import {
   AlertDialog,
@@ -26,6 +26,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Loading from "@/components/ui/loading";
+import { Pagination } from "@/components/ui/pagination";
 import { Slider } from "@/components/ui/slider";
 import {
   Table,
@@ -72,9 +73,7 @@ const SmartphoneList = ({ handleEditModal, handleCreateVariant }: Props) => {
     {
       accessorKey: "name",
       header: "Name",
-      cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("name")}</div>
-      ),
+      cell: ({ row }) => <div>{row.getValue("name")}</div>,
     },
     {
       accessorKey: "price",
@@ -99,44 +98,37 @@ const SmartphoneList = ({ handleEditModal, handleCreateVariant }: Props) => {
     {
       accessorKey: "brand",
       header: "Brand",
-      cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("brand")}</div>
-      ),
+      cell: ({ row }) => <div>{row.getValue("brand")}</div>,
     },
     {
       accessorKey: "model",
       header: "Model",
-      cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("model")}</div>
-      ),
+      cell: ({ row }) => <div>{row.getValue("model")}</div>,
     },
     {
       accessorKey: "operatingSystem",
       header: "Operating System",
-      cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("operatingSystem")}</div>
-      ),
+      cell: ({ row }) => <div>{row.getValue("operatingSystem")}</div>,
     },
     {
       accessorKey: "storageCapacity",
       header: "Storage",
-      cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("storageCapacity")} GB</div>
-      ),
+      cell: ({ row }) => <div>{row.getValue("storageCapacity")} GB</div>,
     },
     {
       accessorKey: "screenSize",
       header: "Screen Size",
-      cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("screenSize")} Inch</div>
-      ),
+      cell: ({ row }) => <div>{row.getValue("screenSize")} Inch</div>,
     },
     {
       accessorKey: "cameraQuality",
       header: "Camera",
-      cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("cameraQuality")}</div>
-      ),
+      cell: ({ row }) => <div>{row.getValue("cameraQuality")}</div>,
+    },
+    {
+      accessorKey: "batteryLife",
+      header: "Battery",
+      cell: ({ row }) => <div>{row.getValue("batteryLife")}</div>,
     },
     {
       accessorKey: "action",
@@ -157,22 +149,22 @@ const SmartphoneList = ({ handleEditModal, handleCreateVariant }: Props) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const page = Number(searchParams.get("page")) || 1;
   const minPrice = Number(searchParams.get("minPrice")) || 0;
-  const maxPrice = Number(searchParams.get("maxPrice")) || 500000;
+  const maxPrice = Number(searchParams.get("maxPrice")) || 50000;
   let releaseDate: string | undefined = searchParams.get("releaseDate")!;
   releaseDate = releaseDate
     ? new Date(releaseDate).toISOString().split("T")[0]
     : undefined;
-  const brand = searchParams.get("brand");
-  const model = searchParams.get("model");
-  const operatingSystem = searchParams.get("operatingSystem");
-  const storageCapacity = searchParams.get("storageCapacity");
-  const screenSize = searchParams.get("screenSize");
-  const cameraQuality = searchParams.get("cameraQuality");
-  const batteryLife = searchParams.get("batteryLife");
+  const brand = searchParams.get("brand") || "";
+  const model = searchParams.get("model") || "";
+  const operatingSystem = searchParams.get("operatingSystem") || "";
+  const storageCapacity = searchParams.get("storageCapacity") || "";
+  const screenSize = searchParams.get("screenSize") || "";
+  const cameraQuality = searchParams.get("cameraQuality") || "";
+  const batteryLife = searchParams.get("batteryLife") || "";
 
   const {
     isLoading,
-    data: { data = [] } = {},
+    data: { data = [], meta: { total = 0 } = {} } = {},
     isFetching,
   } = useGetSmartphonesQuery({
     minPrice,
@@ -196,8 +188,6 @@ const SmartphoneList = ({ handleEditModal, handleCreateVariant }: Props) => {
   const [priceRange, setPriceRange] = useState([minPrice, maxPrice]);
 
   const ids = Object.keys(rowSelection);
-
-  const formRef = useRef<HTMLFormElement>(null);
 
   const table = useReactTable({
     data,
@@ -229,8 +219,14 @@ const SmartphoneList = ({ handleEditModal, handleCreateVariant }: Props) => {
     }
   };
 
-  const handleFilter = () => {
-    const getValue = (name: string) => formRef.current?.[name]?.value;
+  const handleClear = () => {
+    setSearchParams({});
+  };
+
+  const handleFilter = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const getValue = (name: string) =>
+      (event.target as HTMLFormElement)?.[name]?.value;
     setSearchParams((pre) => {
       const filter = new URLSearchParams(pre);
       if (priceRange[0] || priceRange[0] === 0) {
@@ -296,25 +292,46 @@ const SmartphoneList = ({ handleEditModal, handleCreateVariant }: Props) => {
     });
   };
 
+  const toastIdRef = useRef<string | number | null>(null);
+
+  useEffect(() => {
+    if (isFetching && !isLoading) {
+      toastIdRef.current = toast.loading("Loading...", { duration: 500000 });
+    } else if (toastIdRef.current && !isFetching) {
+      toast.dismiss(toastIdRef.current);
+    }
+  }, [isFetching, isLoading]);
+
+  const handlePageChange = (page: number) => {
+    setSearchParams((pre) => {
+      const search = new URLSearchParams(pre);
+      search.set("page", page.toString());
+      return search;
+    });
+  };
+
   return (
     <>
       {isLoading ? (
         <Loading className="min-h-[calc(100vh-200px)]" />
       ) : (
-        <div className="w-full">
-          <form ref={formRef}>
+        <div className="w-full mb-4">
+          <div>
             {/* <div className="flex items-center py-4">
               <Input placeholder="Search" className="max-w-96" />
             </div> */}
-            <div className="mb-5 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 items-center">
-              <div className="pr-5">
+            <form
+              onSubmit={handleFilter}
+              className="mb-5 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 items-center"
+            >
+              <div className="pr-5 ps-2">
                 <Label htmlFor="price" className="mb-2 inline-block">
                   Price Range
                 </Label>
                 <Slider
                   value={priceRange}
                   min={0}
-                  max={500000}
+                  max={50000}
                   step={500}
                   className="max-w-[400px]"
                   showThumbValue
@@ -326,25 +343,34 @@ const SmartphoneList = ({ handleEditModal, handleCreateVariant }: Props) => {
                 <Label htmlFor="releaseDate" className="mb-2 inline-block">
                   Release Date
                 </Label>
-                <Input type="date" name="releaseDate" id="releaseDate" />
+                <Input
+                  type="date"
+                  name="releaseDate"
+                  id="releaseDate"
+                  defaultValue={releaseDate}
+                />
               </div>
               <div>
                 <Label htmlFor="brand" className="mb-2 inline-block">
                   Brand
                 </Label>
-                <Input name="brand" id="brand" />
+                <Input name="brand" id="brand" defaultValue={brand} />
               </div>
               <div>
                 <Label htmlFor="model" className="mb-2 inline-block">
                   Model
                 </Label>
-                <Input name="model" id="model" />
+                <Input name="model" id="model" defaultValue={model} />
               </div>
               <div>
                 <Label htmlFor="operatingSystem" className="mb-2 inline-block">
                   Operating System
                 </Label>
-                <Input name="operatingSystem" id="operatingSystem" />
+                <Input
+                  name="operatingSystem"
+                  id="operatingSystem"
+                  defaultValue={operatingSystem}
+                />
               </div>
               <div>
                 <Label htmlFor="storageCapacity" className="mb-2 inline-block">
@@ -354,32 +380,47 @@ const SmartphoneList = ({ handleEditModal, handleCreateVariant }: Props) => {
                   type="number"
                   name="storageCapacity"
                   id="storageCapacity"
+                  defaultValue={storageCapacity}
                 />
               </div>
               <div>
                 <Label htmlFor="screenSize" className="mb-2 inline-block">
                   Screen Size
                 </Label>
-                <Input name="screenSize" id="screenSize" type="number" />
+                <Input
+                  name="screenSize"
+                  id="screenSize"
+                  type="number"
+                  defaultValue={screenSize}
+                />
               </div>
               <div>
                 <Label htmlFor="cameraQuality" className="mb-2 inline-block">
                   Camera Quality
                 </Label>
-                <Input name="cameraQuality" id="cameraQuality" />
+                <Input
+                  name="cameraQuality"
+                  id="cameraQuality"
+                  defaultValue={cameraQuality}
+                />
               </div>
               <div>
                 <Label htmlFor="batteryLife" className="mb-2 inline-block">
                   Battery Life
                 </Label>
-                <Input name="batteryLife" id="batteryLife" />
+                <Input
+                  name="batteryLife"
+                  id="batteryLife"
+                  defaultValue={batteryLife}
+                />
               </div>
-              <div>
-                <Button onClick={handleFilter} type="button" className="mt-6">
-                  Filter
+              <div className="mt-6 space-x-2">
+                <Button type="submit">Filter</Button>
+                <Button onClick={handleClear} type="button" variant="outline">
+                  Clear Filter
                 </Button>
               </div>
-            </div>
+            </form>
             <Button
               variant="destructive"
               disabled={ids.length === 0 || status === "pending"}
@@ -389,9 +430,11 @@ const SmartphoneList = ({ handleEditModal, handleCreateVariant }: Props) => {
             >
               Delete Selected
             </Button>
-          </form>
+          </div>
           <div
-            className={`rounded-md border${isFetching ? " opacity-60" : ""}`}
+            className={`rounded-md mb-4 border${
+              isFetching ? " opacity-60" : ""
+            }`}
           >
             <Table>
               <TableHeader>
@@ -442,30 +485,11 @@ const SmartphoneList = ({ handleEditModal, handleCreateVariant }: Props) => {
               </TableBody>
             </Table>
           </div>
-          <div className="flex items-center justify-end space-x-2 py-4">
-            <div className="flex-1 text-sm text-muted-foreground">
-              {table.getFilteredSelectedRowModel().rows.length} of{" "}
-              {table.getFilteredRowModel().rows.length} row(s) selected.
-            </div>
-            <div className="space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => table.previousPage()}
-                disabled={!table.getCanPreviousPage()}
-              >
-                Previous
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => table.nextPage()}
-                disabled={!table.getCanNextPage()}
-              >
-                Next
-              </Button>
-            </div>
-          </div>
+          <Pagination
+            page={page}
+            onPageChange={handlePageChange}
+            total={total}
+          />
         </div>
       )}
       <AlertDialog open={alertOpen} onOpenChange={setAlertOpen}>

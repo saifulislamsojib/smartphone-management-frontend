@@ -13,12 +13,18 @@ const DashboardLayout = () => {
         sidebarToggler={sidebarToggler}
         toggleOpen={toggleSidebar}
       />
-      <div className="w-full">
+      <div
+        className={sidebarToggler ? "w-full lg:w-[calc(100%-300px)]" : "w-full"}
+      >
         <DashboardNavbar
           sidebarToggler={sidebarToggler}
           toggleSidebar={toggleSidebar}
         />
-        <div className={`mx-5 mt-5${sidebarToggler ? "" : " lg:mx-10"}`}>
+        <div
+          className={`ml-5 mr-5 lg:mr-10 mt-5${
+            sidebarToggler ? "" : " lg:mx-10"
+          }`}
+        >
           <Outlet />
         </div>
       </div>
