@@ -129,7 +129,43 @@ const AlertDialogCancel = forwardRef<
 ));
 AlertDialogCancel.displayName = AlertDialogPrimitive.Cancel.displayName;
 
+type AlertProps = {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onAction: () => void;
+  title?: string;
+  description?: string;
+};
+
+const Alert = ({
+  open,
+  onOpenChange,
+  onAction,
+  title = "Are you sure?",
+  description,
+}: AlertProps) => {
+  return (
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle className="text-center">{title}</AlertDialogTitle>
+          {description && (
+            <AlertDialogDescription className="text-center">
+              {description}
+            </AlertDialogDescription>
+          )}
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={onAction}>Confirm</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+};
+
 export {
+  Alert,
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,

@@ -65,7 +65,7 @@ const SalesManagement = () => {
     <>
       <div>
         <div className="flex items-center justify-between gap-2">
-          <h2 className="font-bold text-lg sm:text-xl md:text-2xl text-indigo-500">
+          <h2 className="font-bold text-lg sm:text-xl md:text-2xl text-indigo-600">
             Seals Management
           </h2>
         </div>

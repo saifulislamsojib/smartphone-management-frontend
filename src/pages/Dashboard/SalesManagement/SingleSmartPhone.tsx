@@ -34,7 +34,7 @@ const SingleSmartPhone = ({ smartPhone, openModal }: Props) => {
       </CardHeader>
       <CardContent>
         <p>
-          price: <span className="font-semibold text-indigo-500">${price}</span>
+          price: <span className="font-semibold text-indigo-600">${price}</span>
         </p>
         <h5 className="text-lg font-semibold mt-5 mb-2">
           Smartphone Information

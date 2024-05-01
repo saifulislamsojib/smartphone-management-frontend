@@ -1,33 +1,8 @@
-import {
-  useDeleteSelectedSmartphonesMutation,
-  useGetSmartphonesQuery,
-} from "@/redux/features/smartphone/smartphoneApi";
-import {
-  ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  getPaginationRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
-import { FormEvent, useRef, useState } from "react";
-
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { Alert } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import Loading from "@/components/ui/loading";
 import { Pagination } from "@/components/ui/pagination";
-import { Slider } from "@/components/ui/slider";
 import {
   Table,
   TableBody,
@@ -37,10 +12,23 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import useRefetchToast from "@/hooks/useRefetchToast";
+import {
+  useDeleteSelectedSmartphonesMutation,
+  useGetSmartphonesQuery,
+} from "@/redux/features/smartphone/smartphoneApi";
 import { ErrorResponse } from "@/types/common.type";
 import { SmartPhone } from "@/types/smartphone.type";
+import {
+  ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  getPaginationRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
+import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
+import SmartphoneFilter from "./SmartphoneFilter";
 
 type Props = {
   handleEditModal: (editInfo: SmartPhone) => void;
@@ -163,11 +151,7 @@ const SmartphoneList = ({ handleEditModal, handleCreateVariant }: Props) => {
   const cameraQuality = searchParams.get("cameraQuality") || "";
   const batteryLife = searchParams.get("batteryLife") || "";
 
-  const {
-    isLoading,
-    data: { data = [], meta: { total = 0 } = {} } = {},
-    isFetching,
-  } = useGetSmartphonesQuery({
+  const filters = {
     minPrice,
     maxPrice,
     page,
@@ -179,15 +163,18 @@ const SmartphoneList = ({ handleEditModal, handleCreateVariant }: Props) => {
     screenSize,
     batteryLife,
     cameraQuality,
-  });
+  };
+
+  const {
+    isLoading,
+    data: { data = [], meta: { total = 0 } = {} } = {},
+    isFetching,
+  } = useGetSmartphonesQuery(filters);
 
   const [rowSelection, setRowSelection] = useState({});
   const [alertOpen, setAlertOpen] = useState(false);
   const [deleteSelectedSmartphones, { status }] =
     useDeleteSelectedSmartphonesMutation();
-
-  const [priceRange, setPriceRange] = useState([minPrice, maxPrice]);
-  const fromRef = useRef<HTMLFormElement>(null);
 
   const ids = Object.keys(rowSelection);
 
@@ -221,81 +208,6 @@ const SmartphoneList = ({ handleEditModal, handleCreateVariant }: Props) => {
     }
   };
 
-  const handleClear = () => {
-    setSearchParams({});
-    setPriceRange([0, 50000]);
-    fromRef.current?.reset?.();
-  };
-
-  const handleFilter = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const getValue = (name: string) =>
-      (event.target as HTMLFormElement)?.[name]?.value;
-    setSearchParams((pre) => {
-      const filter = new URLSearchParams(pre);
-      if (priceRange[0] || priceRange[0] === 0) {
-        filter.set("minPrice", priceRange[0].toString());
-      } else {
-        filter.delete("minPrice");
-      }
-      if (priceRange[1]) {
-        filter.set("maxPrice", priceRange[1].toString());
-      } else {
-        filter.delete("maxPrice");
-      }
-      const releaseDate = getValue("releaseDate");
-      if (releaseDate) {
-        filter.set("releaseDate", releaseDate);
-      } else {
-        filter.delete("releaseDate");
-      }
-      const brand = getValue("brand");
-      if (brand) {
-        filter.set("brand", brand);
-      } else {
-        filter.delete("brand");
-      }
-      const model = getValue("model");
-      if (model) {
-        filter.set("model", model);
-      } else {
-        filter.delete("model");
-      }
-      const operatingSystem = getValue("operatingSystem");
-      if (operatingSystem) {
-        filter.set("operatingSystem", operatingSystem);
-      } else {
-        filter.delete("operatingSystem");
-      }
-      const storageCapacity = getValue("storageCapacity");
-      if (storageCapacity) {
-        filter.set("storageCapacity", storageCapacity);
-      } else {
-        filter.delete("storageCapacity");
-      }
-      const screenSize = getValue("screenSize");
-      if (screenSize) {
-        filter.set("screenSize", screenSize);
-      } else {
-        filter.delete("screenSize");
-      }
-      const cameraQuality = getValue("cameraQuality");
-      if (cameraQuality) {
-        filter.set("cameraQuality", cameraQuality);
-      } else {
-        filter.delete("cameraQuality");
-      }
-      const batteryLife = getValue("batteryLife");
-      if (batteryLife) {
-        filter.set("batteryLife", batteryLife);
-      } else {
-        filter.delete("batteryLife");
-      }
-
-      return filter;
-    });
-  };
-
   useRefetchToast(isFetching, isLoading);
 
   const handlePageChange = (page: number) => {
@@ -312,112 +224,7 @@ const SmartphoneList = ({ handleEditModal, handleCreateVariant }: Props) => {
         <Loading className="min-h-[calc(100vh-200px)]" />
       ) : (
         <div className="w-full mb-4">
-          <div>
-            {/* <div className="flex items-center py-4">
-              <Input placeholder="Search" className="max-w-96" />
-            </div> */}
-            <form
-              onSubmit={handleFilter}
-              ref={fromRef}
-              className="mb-5 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 items-center"
-            >
-              <div className="pr-5 ps-2">
-                <Label htmlFor="price" className="mb-2 inline-block">
-                  Price Range
-                </Label>
-                <Slider
-                  value={priceRange}
-                  min={0}
-                  max={50000}
-                  step={500}
-                  className="max-w-[400px]"
-                  showThumbValue
-                  minStepsBetweenThumbs={1}
-                  onValueChange={setPriceRange}
-                />
-              </div>
-              <div>
-                <Label htmlFor="releaseDate" className="mb-2 inline-block">
-                  Release Date
-                </Label>
-                <Input
-                  type="date"
-                  name="releaseDate"
-                  id="releaseDate"
-                  defaultValue={releaseDate}
-                />
-              </div>
-              <div>
-                <Label htmlFor="brand" className="mb-2 inline-block">
-                  Brand
-                </Label>
-                <Input name="brand" id="brand" defaultValue={brand} />
-              </div>
-              <div>
-                <Label htmlFor="model" className="mb-2 inline-block">
-                  Model
-                </Label>
-                <Input name="model" id="model" defaultValue={model} />
-              </div>
-              <div>
-                <Label htmlFor="operatingSystem" className="mb-2 inline-block">
-                  Operating System
-                </Label>
-                <Input
-                  name="operatingSystem"
-                  id="operatingSystem"
-                  defaultValue={operatingSystem}
-                />
-              </div>
-              <div>
-                <Label htmlFor="storageCapacity" className="mb-2 inline-block">
-                  Storage Capacity
-                </Label>
-                <Input
-                  type="number"
-                  name="storageCapacity"
-                  id="storageCapacity"
-                  defaultValue={storageCapacity}
-                />
-              </div>
-              <div>
-                <Label htmlFor="screenSize" className="mb-2 inline-block">
-                  Screen Size
-                </Label>
-                <Input
-                  name="screenSize"
-                  id="screenSize"
-                  type="number"
-                  defaultValue={screenSize}
-                />
-              </div>
-              <div>
-                <Label htmlFor="cameraQuality" className="mb-2 inline-block">
-                  Camera Quality
-                </Label>
-                <Input
-                  name="cameraQuality"
-                  id="cameraQuality"
-                  defaultValue={cameraQuality}
-                />
-              </div>
-              <div>
-                <Label htmlFor="batteryLife" className="mb-2 inline-block">
-                  Battery Life
-                </Label>
-                <Input
-                  name="batteryLife"
-                  id="batteryLife"
-                  defaultValue={batteryLife}
-                />
-              </div>
-              <div className="mt-6 space-x-2">
-                <Button type="submit">Filter</Button>
-                <Button onClick={handleClear} type="button" variant="outline">
-                  Clear Filter
-                </Button>
-              </div>
-            </form>
+          <div className="flex items-center justify-between">
             <Button
               variant="destructive"
               disabled={ids.length === 0 || status === "pending"}
@@ -427,6 +234,7 @@ const SmartphoneList = ({ handleEditModal, handleCreateVariant }: Props) => {
             >
               Delete Selected
             </Button>
+            <SmartphoneFilter {...filters} />
           </div>
           <div
             className={`rounded-md mb-4 border${
@@ -489,24 +297,12 @@ const SmartphoneList = ({ handleEditModal, handleCreateVariant }: Props) => {
           />
         </div>
       )}
-      <AlertDialog open={alertOpen} onOpenChange={setAlertOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-center">
-              Are you sure?
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-center">
-              After delete it can&apos;t be undo
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>
-              Confirm
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <Alert
+        open={alertOpen}
+        onOpenChange={setAlertOpen}
+        onAction={handleDelete}
+        description="After delete it can't be undo"
+      />
     </>
   );
 };
