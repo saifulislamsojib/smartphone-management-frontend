@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { Role } from "@/types/user.type";
 import { LucideIcon, Menu } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
@@ -7,6 +8,7 @@ export type SidebarNavItem = {
   disabled?: boolean;
   external?: boolean;
   icon?: LucideIcon;
+  accessRoles: Role[];
 } & (
   | {
       href: string;

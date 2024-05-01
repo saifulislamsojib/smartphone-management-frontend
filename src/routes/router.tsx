@@ -25,26 +25,42 @@ const router = createBrowserRouter([
       {
         path: "dashboard",
         element: (
-          <ProtectedRoute>
+          <ProtectedRoute accessRoles="all">
             <DashboardLayout />
           </ProtectedRoute>
         ),
         children: [
           {
             path: "",
-            element: <DashboardPage />,
+            element: (
+              <ProtectedRoute accessRoles="none">
+                <DashboardPage />
+              </ProtectedRoute>
+            ),
           },
           {
             path: "smartphone-management",
-            element: <SmartphoneManagement />,
+            element: (
+              <ProtectedRoute accessRoles={["super-admin", "manager"]}>
+                <SmartphoneManagement />
+              </ProtectedRoute>
+            ),
           },
           {
             path: "sales-management",
-            element: <SalesManagement />,
+            element: (
+              <ProtectedRoute accessRoles={["super-admin", "seller"]}>
+                <SalesManagement />
+              </ProtectedRoute>
+            ),
           },
           {
             path: "sales-history",
-            element: <SalesHistory />,
+            element: (
+              <ProtectedRoute accessRoles={["super-admin"]}>
+                <SalesHistory />
+              </ProtectedRoute>
+            ),
           },
           {
             path: "*",

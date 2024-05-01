@@ -1,7 +1,10 @@
+export type Role = "super-admin" | "manager" | "seller";
+
 export type User = {
   _id: string;
   name: string;
   email: string;
+  role: Role;
   createdAt: string;
   updatedAt: string;
 };

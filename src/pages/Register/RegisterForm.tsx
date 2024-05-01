@@ -35,7 +35,7 @@ const RegisterForm = () => {
       const { data } = res.data || {};
       localStorage.setItem("jwt-token", data.token);
       dispatch(login(data));
-      navigate("/dashboard/smartphone-management");
+      navigate("/dashboard");
     } else {
       const err = (res.error as ErrorResponse)?.data?.errorMessage;
       toast.error(err || "Account register failed!");

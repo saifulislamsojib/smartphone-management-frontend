@@ -34,7 +34,7 @@ const LoginForm = () => {
       localStorage.setItem("jwt-token", data.token);
       toast.success("Login successfully!", { id: toastId });
       dispatch(login(data));
-      navigate("/dashboard/smartphone-management");
+      navigate("/dashboard");
     } else {
       const err = (res.error as ErrorResponse)?.data?.errorMessage;
       toast.error(err || "Login failed!");

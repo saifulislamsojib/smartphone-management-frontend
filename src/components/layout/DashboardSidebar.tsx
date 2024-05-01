@@ -1,23 +1,6 @@
-import { ClipboardList, Layers3, TextSearch } from "lucide-react";
-import { Sidebar, SidebarNavItem } from "../ui/sidebar";
-
-const sidebarItems: SidebarNavItem[] = [
-  {
-    title: "Smartphone Management",
-    href: "/dashboard/smartphone-management",
-    icon: ClipboardList,
-  },
-  {
-    title: "Sales Management",
-    href: "/dashboard/sales-management",
-    icon: TextSearch,
-  },
-  {
-    title: "Sales History",
-    href: "/dashboard/sales-history",
-    icon: Layers3,
-  },
-];
+import getSidebarItems from "@/data/sidebarItems";
+import { useUser } from "@/redux/hooks";
+import { Sidebar } from "../ui/sidebar";
 
 type Props = {
   sidebarToggler: boolean;
@@ -25,6 +8,10 @@ type Props = {
 };
 
 const DashboardSidebar = ({ sidebarToggler, toggleOpen }: Props) => {
+  const { role } = useUser()!;
+
+  const sidebarItems = getSidebarItems(role);
+
   return (
     <div className={sidebarToggler ? "lg:w-[300px]" : "w-[unset]"}>
       <Sidebar
