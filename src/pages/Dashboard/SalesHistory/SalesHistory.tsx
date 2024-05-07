@@ -14,7 +14,7 @@ import { useGetSellListQuery } from "@/redux/features/sell/sellApi";
 import { useSearchParams } from "react-router-dom";
 import SellsList from "./SellsList";
 
-const selectTypes = ["All", "weekly", "daily", "monthly", "yearly"];
+const selectTypes = ["All", "daily", "weekly", "monthly", "yearly"];
 
 const SalesHistory = () => {
   useTitle("Sales History");

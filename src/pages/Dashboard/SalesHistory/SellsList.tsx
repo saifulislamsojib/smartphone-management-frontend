@@ -25,7 +25,11 @@ const columns: ColumnDef<SellView>[] = [
   {
     accessorKey: "smartphoneName",
     header: "Smartphone Name",
-    cell: ({ row }) => <div>{row.original.smartphoneInfo.name}</div>,
+    cell: ({ row }) => (
+      <div className={row.original.smartphoneInfo?.name ? "" : "italic"}>
+        {row.original.smartphoneInfo?.name || "Smartphone deleted"}
+      </div>
+    ),
   },
   {
     accessorKey: "buyerName",
@@ -43,15 +47,11 @@ const columns: ColumnDef<SellView>[] = [
     accessorKey: "totalPrice",
     header: "Total Price",
     cell: ({ row }) => {
-      const price = parseFloat(
-        (row.original.smartphoneInfo.price * row.original.quantity).toString()
-      );
-
       // Format the amount as a dollar amount
       const formatted = new Intl.NumberFormat("en-US", {
         style: "currency",
         currency: "USD",
-      }).format(price);
+      }).format(row.getValue("totalPrice"));
 
       return <div className="font-medium">{formatted}</div>;
     },
@@ -64,12 +64,20 @@ const columns: ColumnDef<SellView>[] = [
   {
     accessorKey: "brand",
     header: "Brand",
-    cell: ({ row }) => <div>{row.original.smartphoneInfo.brand}</div>,
+    cell: ({ row }) => (
+      <div className={row.original.smartphoneInfo?.brand ? "" : "italic"}>
+        {row.original.smartphoneInfo?.brand || "-----"}
+      </div>
+    ),
   },
   {
     accessorKey: "model",
     header: "Model",
-    cell: ({ row }) => <div>{row.original.smartphoneInfo.model}</div>,
+    cell: ({ row }) => (
+      <div className={row.original.smartphoneInfo?.model ? "" : "italic"}>
+        {row.original.smartphoneInfo?.model || "-----"}
+      </div>
+    ),
   },
 ];
 

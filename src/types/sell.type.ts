@@ -10,6 +10,7 @@ export type Sell = {
   updatedAt: string;
   sellBy: string;
   quantity: number;
+  totalPrice: number;
 };
 
 export type SellView = Omit<Sell, "smartphone"> & {
