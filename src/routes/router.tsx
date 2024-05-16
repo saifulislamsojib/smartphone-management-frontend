@@ -57,7 +57,9 @@ const router = createBrowserRouter([
           {
             path: "sales-history",
             element: (
-              <ProtectedRoute accessRoles={["super-admin"]}>
+              <ProtectedRoute
+                accessRoles={["super-admin", "manager", "seller"]}
+              >
                 <SalesHistory />
               </ProtectedRoute>
             ),

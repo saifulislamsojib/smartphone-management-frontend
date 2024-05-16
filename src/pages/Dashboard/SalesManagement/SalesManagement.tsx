@@ -115,6 +115,7 @@ const SalesManagement = () => {
         modalOpen={modalOpen}
         onOpenChange={handleOpenChange}
         sellProductId={sellProductId}
+        data={data}
       />
     </>
   );

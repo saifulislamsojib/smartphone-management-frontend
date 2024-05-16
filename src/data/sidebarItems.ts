@@ -19,7 +19,7 @@ const sidebarItems: SidebarNavItem[] = [
     title: "Sales History",
     href: "/dashboard/sales-history",
     icon: Layers3,
-    accessRoles: ["super-admin"],
+    accessRoles: ["super-admin", "manager", "seller"],
   },
 ];
 

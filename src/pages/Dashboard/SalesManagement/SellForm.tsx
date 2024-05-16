@@ -3,16 +3,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAddSellMutation } from "@/redux/features/sell/sellApi";
 import { ErrorResponse } from "@/types/common.type";
-import { SellPayload } from "@/types/sell.type";
+import { Sell, SellPayload } from "@/types/sell.type";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 type Props = {
-  onOpenChange: (value: boolean) => void;
   sellProductId: string | null;
+  setSellInfo: (info: Sell) => void;
 };
 
-const SellForm = ({ onOpenChange, sellProductId }: Props) => {
+const SellForm = ({ sellProductId, setSellInfo }: Props) => {
   const {
     register,
     reset,
@@ -36,7 +36,7 @@ const SellForm = ({ onOpenChange, sellProductId }: Props) => {
     if ("data" in res) {
       toast.success(res.data.message || "Sell the smartphone successfully!");
       reset();
-      onOpenChange(false);
+      setSellInfo(res.data.data);
     } else {
       const err = (res.error as ErrorResponse)?.data?.errorMessage;
       toast.error(err || "Something went wrong!");
